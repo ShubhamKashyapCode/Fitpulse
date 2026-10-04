@@ -32,7 +32,7 @@ while [ -h "$PRG" ] ; do
     if expr "$LINK" : '/.*' > /dev/null; then
         PRG="$LINK"
     else
-        PRG=`dirname "$PRG"`"/$LINK"
+        PRG=`dirname "$PRG"`"/"$LINK"
     fi
 done
 SAVED="`pwd`"
@@ -171,7 +171,8 @@ set -- \
 # below.
 #
 # shellcheck disable=SC2086
-eval "set -- $(printf '%s\n' "$DEFAULT_JVM_OPTS $GRADLE_OPTS $JAVA_OPTS $GRADLE_INITIAL_HEAP_SIZE $GRADLE_MAX_HEAP_SIZE" | xargs printf '%s ')" '"$@"'
+eval "set -- $(printf '%s\n' "$DEFAULT_JVM_OPTS $GRADLE_OPTS $JAVA_OPTS $GRADLE_INITIAL_HEAP_SIZE $GRADLE_MAX_HEAP_SIZE" | xargs printf '%s ')
+" "$@"
 
 # Collect all arguments for the java command;
 #   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
