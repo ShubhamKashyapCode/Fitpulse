@@ -26,10 +26,15 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          export ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+          export ANDROID_HOME="$ANDROID_SDK_ROOT"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          test -x "$SDKMANAGER"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "PATH=$(dirname "$SDKMANAGER"):$ANDROID_SDK_ROOT/platform-tools:$PATH" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup Gradle 8.10.2
         uses: gradle/actions/setup-gradle@v6
