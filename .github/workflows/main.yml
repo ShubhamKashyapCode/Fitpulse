@@ -8,47 +8,68 @@ on:
 
 jobs:
   build-apk:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build web application
         run: npm run build
 
-      - name: Check Android project
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
         run: |
-          echo "Android project contents:"
-          ls -la android
-          echo "Gradle wrapper:"
-          ls -la android/gradlew || true
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
       - name: Make Gradle executable
+        if: ${{ hashFiles('android/gradlew') != '' }}
         run: chmod +x android/gradlew
 
-      - name: Build Android Debug APK
-        working-directory: android
-        run: ./gradlew assembleDebug
+      - name: Build APK
+        run: |
+          if [ -f "android/gradlew" ]; then
+            cd android
+            ./gradlew assembleDebug --no-daemon
+          elif [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug --no-daemon
+          else
+            echo "ERROR: Gradle wrapper not found."
+            echo "The project does not contain android/gradlew or gradlew."
+            exit 1
+          fi
+
+      - name: Find APK
+        run: |
+          echo "Searching for APK files..."
+          find . -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FitPulse-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: FitPulse-debug-apk
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
