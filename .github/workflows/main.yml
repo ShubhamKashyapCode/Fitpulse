@@ -53,15 +53,6 @@ jobs:
             exit 1
           fi
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
-
-      - name: Generate Gradle Wrapper
-        working-directory: android
-        run: gradle wrapper --gradle-version 8.13
-
       - name: Make Gradle executable
         run: chmod +x android/gradlew
 
