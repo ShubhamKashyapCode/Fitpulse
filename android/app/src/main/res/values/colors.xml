@@ -1,0 +1,7 @@
+<resources>
+    <color name="fitpulse_primary">#00E676</color>
+    <color name="fitpulse_on_primary">#003919</color>
+    <color name="fitpulse_background">#121417</color>
+    <color name="fitpulse_surface">#1A1D24</color>
+    <color name="fitpulse_accent">#00B0FF</color>
+</resources>

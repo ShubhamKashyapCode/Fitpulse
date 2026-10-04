@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FitPulse</string>
+    <string name="health_connect_rationale">FitPulse requires Health Connect access to sync your real steps, workouts, heart rate, sleep, and calories directly from your phone sensors and connected wearables. Your health data is stored strictly on your device and is never uploaded or sold.</string>
+    <string name="widget_description">Shows today\'s step count, distance, calories, and daily goal progress.</string>
+</resources>

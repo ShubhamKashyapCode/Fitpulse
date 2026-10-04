@@ -1,0 +1,6 @@
+{
+  "name": "FitPulse - Android Fitness & Health Tracking",
+  "description": "Advanced Android fitness application built with Jetpack Compose, Material 3, Room, Health Connect, GPS tracking, and Glance widgets.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
