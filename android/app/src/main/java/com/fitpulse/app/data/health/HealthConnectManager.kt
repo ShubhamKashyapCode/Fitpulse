@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.*
+import androidx.health.connect.client.records.HeartRateRecord as HealthHeartRateRecord
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
@@ -47,7 +48,7 @@ class HealthConnectManager(private val context: Context) {
         HealthPermission.getReadPermission(DistanceRecord::class),
         HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
-        HealthPermission.getReadPermission(HeartRateRecord::class),
+        HealthPermission.getReadPermission(HealthHeartRateRecord::class),
         HealthPermission.getReadPermission(RestingHeartRateRecord::class),
         HealthPermission.getReadPermission(SleepSessionRecord::class),
         HealthPermission.getReadPermission(WeightRecord::class),
@@ -167,7 +168,7 @@ class HealthConnectManager(private val context: Context) {
             val endTime = Instant.now()
             val response = client.readRecords(
                 ReadRecordsRequest(
-                    recordType = HeartRateRecord::class,
+                    recordType = HealthHeartRateRecord::class,
                     timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
                 )
             )
