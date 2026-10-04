@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build-apk:
     name: Build Android APK
@@ -13,61 +16,46 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          package-manager-cache: false
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build web application
-        run: npm run build
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Check Android project
+      - name: Setup Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Verify Android project
+        working-directory: android
         run: |
-          if [ -d "android" ]; then
-            echo "Android project found"
-            ls -la android
-          else
-            echo "ERROR: android folder not found"
-            exit 1
-          fi
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f app/build.gradle.kts
+          echo "Android project structure OK"
 
-      - name: Make Gradle executable
-        run: chmod +x android/gradlew
-
-      - name: Check Gradle Wrapper
+      - name: Run Gradle checks
         working-directory: android
-        run: bash ./gradlew --version
+        run: gradle --version
 
-      - name: Build APK
+      - name: Build debug APK
         working-directory: android
-        run: bash ./gradlew assembleDebug --no-daemon
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Find APK
         run: |
           echo "APK files:"
-          find . -type f -name "*.apk" -print
+          find android/app/build/outputs/apk -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
