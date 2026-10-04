@@ -1,4 +1,4 @@
-name: Build FitPulse APK
+name: Build Android APK
 
 on:
   workflow_dispatch:
@@ -9,66 +9,90 @@ on:
 jobs:
   build-apk:
     name: Build Android APK
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
-          cache: npm
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Check project files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo ""
+          echo "Project files:"
+          ls -la
+          echo ""
+          echo "Checking package.json:"
+          test -f package.json && echo "package.json FOUND" || echo "ERROR: package.json NOT FOUND"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build web application
         run: npm run build
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK packages
+      - name: Install Android SDK
         run: |
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
-      - name: Make Gradle executable
-        if: ${{ hashFiles('android/gradlew') != '' }}
-        run: chmod +x android/gradlew
+      - name: Check Android project
+        run: |
+          echo "Checking Android project..."
+          if [ -d "android" ]; then
+            echo "android folder FOUND"
+            ls -la android
+          else
+            echo "ERROR: android folder NOT FOUND"
+            exit 1
+          fi
 
-      - name: Build APK
+      - name: Make Gradle executable
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          elif [ -f "gradlew" ]; then
+            chmod +x gradlew
+          else
+            echo "ERROR: Gradle wrapper not found"
+            exit 1
+          fi
+
+      - name: Build Debug APK
         run: |
           if [ -f "android/gradlew" ]; then
             cd android
             ./gradlew assembleDebug --no-daemon
           elif [ -f "gradlew" ]; then
-            chmod +x gradlew
             ./gradlew assembleDebug --no-daemon
-          else
-            echo "ERROR: Gradle wrapper not found."
-            echo "The project does not contain android/gradlew or gradlew."
-            exit 1
           fi
 
       - name: Find APK
         run: |
-          echo "Searching for APK files..."
+          echo "Searching for APK..."
           find . -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FitPulse-debug-apk
+          name: FitPulse-APK
           path: |
             android/app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/debug/*.apk
