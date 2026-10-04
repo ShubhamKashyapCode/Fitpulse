@@ -21,17 +21,6 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Check project files
-        run: |
-          echo "Current directory:"
-          pwd
-          echo ""
-          echo "Project files:"
-          ls -la
-          echo ""
-          echo "Checking package.json:"
-          test -f package.json && echo "package.json FOUND" || echo "ERROR: package.json NOT FOUND"
-
       - name: Install dependencies
         run: npm install
 
@@ -45,55 +34,40 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
-      - name: Install Android SDK
+      - name: Install Android SDK packages
         run: |
+          yes | sdkmanager --licenses || true
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
       - name: Check Android project
         run: |
-          echo "Checking Android project..."
           if [ -d "android" ]; then
-            echo "android folder FOUND"
+            echo "Android project found"
             ls -la android
           else
-            echo "ERROR: android folder NOT FOUND"
+            echo "ERROR: android folder not found"
             exit 1
           fi
 
       - name: Make Gradle executable
-        run: |
-          if [ -f "android/gradlew" ]; then
-            chmod +x android/gradlew
-          elif [ -f "gradlew" ]; then
-            chmod +x gradlew
-          else
-            echo "ERROR: Gradle wrapper not found"
-            exit 1
-          fi
+        run: chmod +x android/gradlew
 
-      - name: Build Debug APK
-        run: |
-          if [ -f "android/gradlew" ]; then
-            cd android
-            ./gradlew assembleDebug --no-daemon
-          elif [ -f "gradlew" ]; then
-            ./gradlew assembleDebug --no-daemon
-          fi
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Find APK
         run: |
-          echo "Searching for APK..."
+          echo "APK files:"
           find . -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FitPulse-APK
-          path: |
-            android/app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
