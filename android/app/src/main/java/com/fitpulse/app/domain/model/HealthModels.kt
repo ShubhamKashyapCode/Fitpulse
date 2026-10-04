@@ -36,7 +36,7 @@ data class HeartRateRecord(
     val source: String = "Health Connect"
 )
 
-enum class HeartRateZone(val zoneNumber: Int, val name: String, val minBpm: Int, val maxBpm: Int) {
+enum class HeartRateZone(val zoneNumber: Int, val displayName: String, val minBpm: Int, val maxBpm: Int) {
     ZONE_1(1, "Very Light (Warm Up)", 90, 114),
     ZONE_2(2, "Light (Fat Burn)", 115, 133),
     ZONE_3(3, "Moderate (Aerobic)", 134, 152),
