@@ -58,11 +58,11 @@ jobs:
 
       - name: Check Gradle Wrapper
         working-directory: android
-        run: ./gradlew --version
+        run: bash ./gradlew --version
 
       - name: Build APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: bash ./gradlew assembleDebug --no-daemon
 
       - name: Find APK
         run: |
